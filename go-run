@@ -1,0 +1,7 @@
+#!/bin/sh
+
+set -e
+
+goBin=$(cat /tmp/go-bin-name)
+
+exec $goBin $@
