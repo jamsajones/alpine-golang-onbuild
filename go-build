@@ -1,12 +1,15 @@
 #!/bin/sh
 
+# This script use a slightly modified version of the binary naming method of the official golang image.
+# https://github.com/docker-library/golang/blob/396f40c6188614c7acd6d8299a0ea71030a056a6/1.4/go-wrapper
+
 set -e
 
-# Alpine deps
+## Alpine deps
 apk add --update -t build-deps go git mercurial bzr
 apk add -u musl
 
-# GO Magic
+## GO Magic
 goDir="$(go list -e -f '{{.ImportComment}}' 2>/dev/null || true)"
 
 if [ -z "$goDir" -a -s .godir ]; then
@@ -33,11 +36,21 @@ if [ -d "Godeps" ]; then
     go get github.com/tools/godep
     godep restore
 fi
-go get -v -d
-go build -ldflags "-X main.Version $1" -o $goBin
 
+goFlags=""
+if [ -s GOFLAGS ]; then
+    . ./GOFLAGS
+fi
+
+go get -v -d
+go build -ldflags " \
+    -X main.Version $1 \
+    ${goFlags} \
+" -o $goBin
+
+# Store the binary name in a temp file for the go-run script
 echo $goBin > /tmp/go-bin-name
 
-# Cleanup Alpine deps
+## Cleanup Alpine deps
 apk del --purge build-deps
 rm -rf /go /var/cache/apk/*

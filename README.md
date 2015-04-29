@@ -1,6 +1,10 @@
 
 # WIP
 
+## Details
+
+Alpine edge based image for Golang 1.4.2.
+
 ## Usage example
 
 ```
