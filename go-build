@@ -6,7 +6,7 @@
 set -e
 
 ## Alpine deps
-apk add --update -t build-deps go git mercurial bzr
+apk add --update -t build-deps go git mercurial bzr gcc musl-dev
 apk add -u musl
 
 ## GO Magic
