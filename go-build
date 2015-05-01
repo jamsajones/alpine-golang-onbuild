@@ -35,23 +35,20 @@ fi
 version=""
 goFlags=""
 if [ -s Makefile ]; then
-    version="$(make -f Makefile -f helper.mak print-VERSION)"
-    goBin="/bin/$(make -f Makefile -f helper.mak print-TARGET)"
-    goFlags="$(make -f Makefile -f helper.mak print-GOFLAGS)"
-else
-    if [ -s VERSION ]; then
-        version="$(cat VERSION)"
-    fi
-    if [ -s GOFLAGS ]; then
-        goFlags="$(cat GOFLAGS)"
+    version="$(make -f Makefile -f /bin/helper.mak print-VERSION)"
+    goFlags="$(make -f Makefile -f /bin/helper.mak print-GOFLAGS)"
+    goBinTarget="$(make -f Makefile -f /bin/helper.mak print-TARGET)"
+
+    if [ "$goBinTarget" ]; then
+	goBin="/bin/$goBinTarget"
     fi
 fi
 
-if [ "$goFlags" ]; then
-    if ! echo "$goFlags" | egrep -q '^-ldflags'
-    then
-        goFlags="-ldflags ${goFlags}"
-    fi
+if [ -z "$version" -a -s VERSION ]; then
+    version="$(cat VERSION)"
+fi
+if [ -z "$goFlags" -a -s .goflags ]; then
+    . ./.goflags
 fi
 
 if [ "$version" ]; then
@@ -60,6 +57,7 @@ if [ "$version" ]; then
         goFlags="${goFlags} -X main.Version ${version}"
     fi
 fi
+goFlags=$(echo ${goFlags} | sed -e 's/-ldflags//g')
 
 if [ -d "Godeps" ]; then
     go get github.com/tools/godep
@@ -67,7 +65,7 @@ if [ -d "Godeps" ]; then
 fi
 
 go get -v -d
-go build "${goFlags}" -o "$goBin"
+go build -ldflags "$goFlags" -o "$goBin"
 
 # Store the binary name in a temp file for the go-run script
 echo "$goBin" > /tmp/go-bin-name
