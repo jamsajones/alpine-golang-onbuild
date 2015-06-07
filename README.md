@@ -3,7 +3,7 @@
 
 ## Details
 
-Alpine edge based image for Golang 1.4.2.
+Alpine based image for Golang.
 
 ## Usage example
 
@@ -25,5 +25,4 @@ FROM sdurrheimer/alpine-golang-onbuild
 MAINTAINER The Prometheus Authors <prometheus-developers@googlegroups.com>
 
 EXPOSE  9108 9109
-CMD     [ "-logtostderr" ]
 ```
